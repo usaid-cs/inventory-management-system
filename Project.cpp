@@ -12,7 +12,6 @@ struct inventoryItem {
 	string category;
 	int itemCount;
 	string allocatedTo[10];
-	int allocatedID[10];
 	bool active = true;
 };
 
