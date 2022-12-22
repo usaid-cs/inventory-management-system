@@ -4,14 +4,14 @@
 #include <fstream>
 using namespace std;
 
-auto path = "records.txt";
+auto path = "inventory_item_data.txt"; // name of file
 
 struct inventoryItem {
 	string name;
 	string itemID;
 	string category;
 	int itemCount;
-	string allocatedTo[10];
+	string allocatedTo[10]; // An array where we will store the users who have borrowed items
 	bool active = true;
 };
 
@@ -31,19 +31,19 @@ void writeItem(inventoryItem*);
 
 
 int main() {
-	const int size = 10;
-	inventoryItem arr[size];
+	const int size = 10; // Number of ITEMS that can be stored in the array
+	inventoryItem arr[size]; 
 	int i = 0;
 
 	{
-		ofstream file(path, ios::app);
+		ofstream file(path, ios::app); // Creates a file if it does not already exists
 		file.close();
 	}
 
-	ifstream file(path, std::ios::in);
+	ifstream file(path, std::ios::in); // Opening file to read data from it
 
 	if (file)
-		readItem(file, arr, i);
+		readItem(file, arr, i); // Calling function to read data
 
 	file.close();
 
@@ -69,6 +69,7 @@ int main() {
 		cin >> option;
 		cin.ignore(1000, '\n');
 
+		// Choice of options available on menu
 		if (option == '1') {
 			addItem(arr, &i);
 		}
@@ -99,7 +100,7 @@ int main() {
 		else
 			cout << ":/ Invalid Command" << endl;
 
-		writeItem(arr);
+		writeItem(arr); // Writes the record in file as soon as a function ends
 
 	} while (option != '9');
 
@@ -107,15 +108,16 @@ int main() {
 
 }
 
+// Function to add item details to array
 void addItem(struct inventoryItem* intArr, int* count) {
 	cout << "Please enter details of inventory item: " << endl;
 
 	string id;
 
-	do {
+	do { // Do while loops to make sure that user must enter data of item
 		cout << "Name: " << endl;
 		getline(cin, intArr[*count].name);
-	} while (intArr[*count].name.empty());
+	} while (intArr[*count].name.empty()); 
 
 	do
 	{
@@ -130,7 +132,7 @@ void addItem(struct inventoryItem* intArr, int* count) {
 	} while (intArr[*count].itemCount < 1);
 
 	int flag = 1;
-
+	// Taking unique ID for each Item
 	do {
 
 		flag = 1;
@@ -160,16 +162,17 @@ void addItem(struct inventoryItem* intArr, int* count) {
 		getline(cin, intArr[*count].category);
 	} while (intArr[*count].category.empty());
 
-	(*count)++;
+	(*count)++; // Incrementing count by 1, so next item details are assigned to next index
 
 }
 
+// Function to display All Items
 void showItem(struct inventoryItem* intArr) {
 
 	int j = 0;
 	while (!intArr[j].name.empty())
 	{
-		if (intArr[j].active != false)
+		if (intArr[j].active != false) // If an item is not deleted
 		{
 			cout << "Name: " << intArr[j].name << endl;
 			cout << "Item Count: " << intArr[j].itemCount << endl;
@@ -185,6 +188,7 @@ void showItem(struct inventoryItem* intArr) {
 
 }
 
+// Function to search Item
 void searchItem(struct inventoryItem* arr) {
 
 	string itemID;
@@ -193,16 +197,15 @@ void searchItem(struct inventoryItem* arr) {
 	cout << "Enter Item ID: " << endl;
 	cin >> itemID;
 
-	do
+	while (!arr[j].name.empty()) // Loop runs as long as there is an item
 	{
-		if (itemID == arr[j].itemID) {
+		if (itemID == arr[j].itemID) { // If item is found, its index is stored
 			index = j;
 			flag = 1;
 		}
 
-
 		j++;
-	} while (!arr[j].name.empty());
+	}
 
 	if (flag == 1)
 	{
@@ -219,6 +222,7 @@ void searchItem(struct inventoryItem* arr) {
 
 }
 
+// Function to edit item
 void editItem(struct inventoryItem* arr) {
 
 	string itemID;
@@ -262,6 +266,7 @@ void editItem(struct inventoryItem* arr) {
 
 }
 
+// Function to delete an item
 void deleteItem(struct inventoryItem* arr) {
 
 	string itemID;
@@ -282,7 +287,7 @@ void deleteItem(struct inventoryItem* arr) {
 
 	if (flag == 1)
 	{
-		arr[index].active = false;
+		arr[index].active = false; // Changes the active attribute of array index to false, so we consider it deleted
 
 	}
 	else
@@ -290,10 +295,11 @@ void deleteItem(struct inventoryItem* arr) {
 
 }
 
+// Function to borrow items from system
 void assignItem(struct inventoryItem* arr) {
 
 	string name, itemID;
-	int index = 0, j = 0, a = 0, flag = 0, flag2=0, temIndex = 0;
+	int index = 0, j = 0, a = 0, flag = 0, flag2 = 0, temIndex = 0;
 
 	cout << "Enter item ID you want to Assign: " << endl;
 	cin >> itemID;
@@ -310,7 +316,7 @@ void assignItem(struct inventoryItem* arr) {
 
 	if (flag == 1)
 	{
-
+		// for a unique username
 		do {
 
 			flag2 = 1;
@@ -333,11 +339,12 @@ void assignItem(struct inventoryItem* arr) {
 
 		auto& itemCount = arr[index].itemCount;
 
+		// If the index is empty, adds the name of the user at that index other wise increment to the next index and store it there
 		while (true)
 		{
 			auto& slot = arr[index].allocatedTo[a++];
 
-			if (slot.empty() && flag2==1)
+			if (slot.empty() && flag2 == 1)
 			{
 				slot.assign(name);
 				break;
@@ -345,12 +352,13 @@ void assignItem(struct inventoryItem* arr) {
 		}
 
 
-		--itemCount;
+		--itemCount; // decrementing item count by 1
 	}
 	else
 		cout << itemID << " Not Found :/" << endl;
 }
 
+// Functing for retriving an Item from user
 void retrieveItem(struct inventoryItem* arr) {
 	string itemID, userName;
 	int j = 0, index = 0, flag = 0;
@@ -379,18 +387,18 @@ void retrieveItem(struct inventoryItem* arr) {
 		bool found = false;
 
 		for (n = 0; n < 10; n++) {
-			if (userName == arr[index].allocatedTo[n])
+			if (userName == arr[index].allocatedTo[n]) // Checks if the given name is in allocatedTo array of given item (List of Borrowers)
 			{
 				auto& slot = arr[index];
 				auto& alt = slot.allocatedTo;
 
-				++slot.itemCount;
+				++slot.itemCount; // Increments the item count by 1
 
-				for (int i = n; i < 10 - 1; i++) {
+				for (int i = n; i < 10 - 1; i++) { // replaces the retrived username with next username
 					alt[i] = alt[i + 1];
 				}
 
-				alt[10 - 1] = "";
+				alt[10 - 1] = ""; // Makes the last input empty
 
 				found = true;
 				break;
@@ -404,6 +412,7 @@ void retrieveItem(struct inventoryItem* arr) {
 		cout << itemID << " Not Found :/" << endl;
 }
 
+// Function to display borrowers
 void viewMembers(struct inventoryItem* arr) {
 
 	string itemID;
@@ -424,12 +433,12 @@ void viewMembers(struct inventoryItem* arr) {
 
 	if (flag == 1)
 	{
-		while (!arr[index].allocatedTo[m].empty()) {
-			cout << endl << arr[index].allocatedTo[m] << endl;
+		while (!arr[index].allocatedTo[m].empty()) { // Till there is a borrower in an array
+			cout << arr[index].allocatedTo[m] << endl;
 			m++;
 		}
 
-		if (arr[index].allocatedTo[0].empty()) {
+		if (arr[index].allocatedTo[0].empty()) { // If there is no borrower
 			cout << ":/ No one has borrowed " << itemID << " yet" << endl;
 		}
 
@@ -439,19 +448,22 @@ void viewMembers(struct inventoryItem* arr) {
 
 }
 
+// File Handling
+
+// Reading data from file
 void readItem(ifstream& fin, struct inventoryItem* arr, int& count) {
 	int j = 0;
 
 	while (!fin.eof()) {
 		getline(fin, arr[j].itemID);
-		if (fin.eof() || arr[j].itemID.empty())
+		if (fin.eof() || arr[j].itemID.empty()) // If file has opened for the first time, not to read records from it
 			break;
 		getline(fin, arr[j].name);
 		getline(fin, arr[j].category);
 		fin >> arr[j].itemCount;
 		fin.ignore(1000, '\n');
 
-		for (int a = 0; a < 10; ++a)
+		for (int a = 0; a < 10; ++a) // To read list of borrowers
 		{
 			getline(fin, arr[j].allocatedTo[a]);
 		}
@@ -462,13 +474,14 @@ void readItem(ifstream& fin, struct inventoryItem* arr, int& count) {
 
 }
 
+// Function to write in the file
 void writeItem(inventoryItem* arr) {
 
-	ofstream fout(path);
+	ofstream fout(path); // Opens file to write each time
 
 	int j = 0;
 
-	while (!arr[j].name.empty()) {
+	while (!arr[j].name.empty()) { // Till there is an item, keep writing
 		if (arr[j].active != false)
 		{
 			fout << arr[j].itemID << endl;
